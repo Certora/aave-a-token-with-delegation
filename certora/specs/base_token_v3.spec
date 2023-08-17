@@ -31,8 +31,8 @@ methods {
     //function getBalance(address user) external returns (uint104) envfree;
     function getDelegatedPropositionBalance(address user) external returns (uint72) envfree;
     function getDelegatedVotingBalance(address user) external returns (uint72) envfree;
-    function getDelegatingProposition(address user) external returns (bool) envfree;
-    function getDelegatingVoting(address user) external returns (bool) envfree;
+    function isDelegatingProposition(address user) external returns (bool) envfree;
+    function isDelegatingVoting(address user) external returns (bool) envfree;
     function getVotingDelegate(address user) external returns (address) envfree;
     function getPropositionDelegate(address user) external returns (address) envfree;
     function getDelegationMode(address user) external returns (ATokenWithDelegation_Harness.DelegationMode) envfree;

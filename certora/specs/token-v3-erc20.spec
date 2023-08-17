@@ -1,13 +1,9 @@
 /*
-    This is a specification file for the verification of general ERC20
-    features of AaveTokenV3.sol smart contract using the Certora prover. 
-    For more information, visit: https://www.certora.com/
-
-    This file is run with scripts/erc20.sh
-    On the token harness AaveTokenV3Harness.sol
-
-    Sanity run:
-    https://prover.certora.com/output/67509/a5d16a31a49b9c9a7b71/?anonymousKey=bd108549122fd97450428a26c4ed52458793b898
+  This is a specification file for the verification of general ERC20
+  features of AaveTokenV3.sol smart contract using the Certora prover. 
+  For more information, visit: https://www.certora.com/
+  
+  It uses the harness file: certora/harness/ATokenWithDelegation_Harness.sol
 */
 
 import "base_token_v3.spec";
@@ -23,12 +19,6 @@ function doesntChangeBalance(method f) returns bool {
 
 methods {
     function _SymbolicLendingPoolL1.getReserveNormalizedIncome(address) external returns (uint256) envfree;
-    //function _SymbolicLendingPoolL1.getReserveNormalizedIncome(address) external returns (uint256)  => index();
-    //function _.rayMul(uint256 a,uint256 b) internal => rayMul_MI(a,b) expect uint256 ALL;
-    //function _.rayDiv(uint256 a,uint256 b) internal => rayDiv_MI(a,b) expect uint256 ALL;
-
-    //function _.getIncentivesController() external => CONSTANT;
-    //function _.UNDERLYING_ASSET_ADDRESS() external => CONSTANT;
     
     // called by AToken.sol::224. A method of IPool.
     function _.finalizeTransfer(address, address, address, uint256, uint256, uint256) external => NONDET;
@@ -44,18 +34,6 @@ methods {
 
     // called from: IncentivizedERC20.sol::207. A method of incentivesControllerLocal.
     function _.handleAction(address,uint256,uint256) external => NONDET;
-
-    // getPool() returns address => ALWAYS(100);
-    //    function _.getPool() external returns address => NONDET;
-    //function _.getPool() external => NONDET;
-    
-    // A method of Ipool
-    // can this contract change the pool
-    //function _.getReserveData(address) external => CONSTANT;
-    //function _.claimAllRewards(address[],address) external => NONDET;
-
-    // called in MetaTxHelpers.sol::27.
-    //function _.isValidSignature(bytes32, bytes) external => NONDET;
 }
 
 ghost index() returns uint256 {
@@ -71,86 +49,6 @@ ghost rayDiv_MI(mathint , mathint) returns uint256 {
 
     
 
-/*
-    @Rule
-
-
-    @Description:
-        Token transfer works correctly. Balances are updated if not reverted. 
-        If reverted then the transfer amount was too high, or the recipient is 0.
-
-    @Formula:
-        {
-            balanceFromBefore = balanceOf(msg.sender)
-            balanceToBefore = balanceOf(to)
-        }
-        <
-            transfer(to, amount)
-        >
-        {
-            lastReverted => to = 0 || amount > balanceOf(msg.sender)
-            !lastReverted => balanceOf(to) = balanceToBefore + amount &&
-                            balanceOf(msg.sender) = balanceFromBefore - amount
-        }
-
-    @Notes:
-        This rule fails on tokens with a blacklist function, like USDC and USDT.
-        The prover finds a counterexample of a reverted transfer to a blacklisted address or a transfer in a paused state.
-
-    @Link:
-
-*/
-
-// nissan: remove this rule becaue we have integrityTransfer in AToken spec
-/*
-rule transferCorrect(address to, uint256 amount) {
-    env e;
-    require e.msg.value == 0 && e.msg.sender != 0;
-    uint256 fromBalanceBefore = balanceOf(e.msg.sender);
-    uint256 toBalanceBefore = balanceOf(to);
-    require fromBalanceBefore + toBalanceBefore < AAVE_MAX_SUPPLY() / 100;
-    
-    // proven elsewhere
-    address v_delegateTo = getVotingDelegate(to);
-    mathint dvbTo = getDelegatedVotingBalance(v_delegateTo);
-    require dvbTo >= balanceOf(to) / DELEGATED_POWER_DIVIDER() && 
-        dvbTo < SCALED_MAX_SUPPLY() - amount / DELEGATED_POWER_DIVIDER();
-    address p_delegateTo = getPropositionDelegate(to);
-    mathint pvbTo = getDelegatedPropositionBalance(p_delegateTo);
-    require pvbTo >= balanceOf(to) / DELEGATED_POWER_DIVIDER() && 
-        pvbTo < SCALED_MAX_SUPPLY() - amount / DELEGATED_POWER_DIVIDER();
-
-    // proven elsewhere
-    address v_delegateFrom = getVotingDelegate(e.msg.sender);
-    address p_delegateFrom = getPropositionDelegate(e.msg.sender);
-    mathint dvbFrom = getDelegatedVotingBalance(v_delegateFrom);
-    mathint pvbFrom = getDelegatedPropositionBalance(p_delegateFrom);
-    require dvbFrom >= balanceOf(e.msg.sender) / DELEGATED_POWER_DIVIDER();
-    require pvbFrom >= balanceOf(e.msg.sender) / DELEGATED_POWER_DIVIDER();
-
-    require validDelegationMode(e.msg.sender) && validDelegationMode(to);
-    require ! ( (getDelegatingVoting(to) && v_delegateTo == to) ||
-                (getDelegatingProposition(to) && p_delegateTo == to));
-    require validDelegationMode(p_delegateFrom) && validDelegationMode(p_delegateTo);
-    require validDelegationMode(v_delegateFrom) && validDelegationMode(v_delegateTo);
-
-    // to not overcomplicate the constraints on dvbTo and dvbFrom
-    require v_delegateFrom != v_delegateTo && p_delegateFrom != p_delegateTo;
-
-    transfer@withrevert(e, to, amount);
-    bool reverted = lastReverted;
-    if (!reverted) {
-        if (e.msg.sender == to) {
-            assert balanceOf(e.msg.sender) == fromBalanceBefore;
-        } else {
-            assert to_mathint(balanceOf(e.msg.sender)) == fromBalanceBefore - amount;
-            assert to_mathint(balanceOf(to)) == toBalanceBefore + amount;
-        }
-    } else {
-        assert amount > fromBalanceBefore || to == 0;
-    }
-}
-*/
 
 
 /*
@@ -184,7 +82,8 @@ rule transferCorrect(address to, uint256 amount) {
 */
 
 rule transferFromCorrect(address from, address to, uint256 amount) {
-    //nissan: I added the requirement that index==1 for this rule.
+    // We run this rule under the assumption that index==1.
+    // The reasons are rounding errors due to calculations that involves the index.
     require (_SymbolicLendingPoolL1.getReserveNormalizedIncome(Underlying) == RAY());
     
     env e;
@@ -202,6 +101,7 @@ rule transferFromCorrect(address from, address to, uint256 amount) {
         (to_mathint(allowance(from, e.msg.sender)) == allowanceBefore - amount ||
          allowance(from, e.msg.sender) == max_uint256);
 }
+
 
 /*
     @Rule
@@ -262,29 +162,6 @@ rule NoChangeTotalSupply(method f)
     assert scaledTotalSupply(e) == totalSupplyBefore;
 }
 
-/*
- The two rules cover the same ground as NoChangeTotalSupply.
- 
- The split into two rules is in order to make the burn/mint features of a tested token even more obvious
-*/
-// nissan: The following two rules are not relevant for Atoken-With-Delegation hence removed
-/*
-rule noBurningTokens(method f) {
-    uint256 totalSupplyBefore = totalSupply();
-    env e;
-    calldataarg args;
-    f(e, args);
-    assert totalSupply() >= totalSupplyBefore;
-}
-
-rule noMintingTokens(method f) {
-    uint256 totalSupplyBefore = totalSupply();
-    env e;
-    calldataarg args;
-    f(e, args);
-    assert totalSupply() <= totalSupplyBefore;
-}
-*/
 
 /*
     @Rule
@@ -389,9 +266,9 @@ rule ChangingAllowance(method f, address from, address spender) {
     @Link:
 
 */
-//nissan: changed from balanceOf to scaledBalanceOf. First it's more relevant to ERC20, second
-//        I'm getting time-out
 rule TransferSumOfFromAndToBalancesStaySame(address to, uint256 amount) {
+    // This rule originally used balaceOf().
+    // Changed to scaledBalanceOf() because it's more relevant to ERC20.
     env e;
     mathint sum = scaledBalanceOf(e.msg.sender) + scaledBalanceOf(to);
     require sum < max_uint256;
@@ -421,9 +298,9 @@ rule TransferSumOfFromAndToBalancesStaySame(address to, uint256 amount) {
     @Link:
 
 */
-//nissan: changed from balanceOf to scaledBalanceOf. First it's more relevant to ERC20, second
-//        I'm getting time-out
 rule TransferFromSumOfFromAndToBalancesStaySame(address from, address to, uint256 amount) {
+    // This rule originally used balaceOf().
+    // Changed to scaledBalanceOf() because it's more relevant to ERC20.
     env e;
     mathint sum = scaledBalanceOf(from) + scaledBalanceOf(to);
     require sum < max_uint256;
@@ -552,17 +429,3 @@ rule OtherBalanceOnlyGoesUp(address other, method f)
     assert scaledBalanceOf(e,other) >= balanceBefore;
 }
 
-// nissan: The following rule doesn't apply to AToken
-/*
-rule noRebasing(method f, address alice) {
-    env e;
-    calldataarg args;
-
-    require doesntChangeBalance(f);
-    
-    uint256 balanceBefore = balanceOf(alice);
-    f(e, args);
-    uint256 balanceAfter = balanceOf(alice);
-    assert balanceBefore == balanceAfter;
-}
-*/

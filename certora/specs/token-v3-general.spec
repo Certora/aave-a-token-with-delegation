@@ -17,13 +17,6 @@ definition RAY() returns uint256 = 10^27;
 
 
 methods {
-    //    function _SymbolicLendingPoolL1.getReserveNormalizedIncome(address) external returns (uint256)  => index();
-    //function _.rayMul(uint256 a,uint256 b) internal => rayMul_MI(a,b) expect uint256 ALL;
-    //function _.rayDiv(uint256 a,uint256 b) internal => rayDiv_MI(a,b) expect uint256 ALL;
-
-    //function _.getIncentivesController() external => CONSTANT;
-    //function _.UNDERLYING_ASSET_ADDRESS() external => CONSTANT;
-    
     // called by AToken.sol::224. A method of IPool.
     function _.finalizeTransfer(address, address, address, uint256, uint256, uint256) external => NONDET;
 
@@ -38,18 +31,6 @@ methods {
 
     // called from: IncentivizedERC20.sol::207. A method of incentivesControllerLocal.
     function _.handleAction(address,uint256,uint256) external => NONDET;
-
-    // getPool() returns address => ALWAYS(100);
-    //    function _.getPool() external returns address => NONDET;
-    //function _.getPool() external => NONDET;
-    
-    // A method of Ipool
-    // can this contract change the pool
-    //function _.getReserveData(address) external => CONSTANT;
-    //function _.claimAllRewards(address[],address) external => NONDET;
-
-    // called in MetaTxHelpers.sol::27.
-    //function _.isValidSignature(bytes32, bytes) external => NONDET;
 }
 
 
@@ -193,9 +174,9 @@ hook Sstore _userState[KEY address user].balance uint120 balance (uint120 old_ba
 
 */
 invariant delegateCorrectness(address user)
-/* ((getVotingDelegate(user) == user || getVotingDelegate(user) == 0) <=> !getDelegatingVoting(user))
+/* ((getVotingDelegate(user) == user || getVotingDelegate(user) == 0) <=> !isDelegatingVoting(user))
    &&*/
-    ((getPropositionDelegate(user) == user || getPropositionDelegate(user) == 0) <=> !getDelegatingProposition(user));
+    ((getPropositionDelegate(user) == user || getPropositionDelegate(user) == 0) <=> !isDelegatingProposition(user));
 
 /*
     @Rule

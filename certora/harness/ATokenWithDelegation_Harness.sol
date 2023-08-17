@@ -4,7 +4,10 @@
   This is an extension of the ATokenWithDelegation with added getters.
  */
 
+
+
 pragma solidity ^0.8.0;
+
 
 import {ATokenWithDelegation} from '../../src/contracts/ATokenWithDelegation.sol';
 import {AToken} from '../../src/contracts/AToken.sol';
@@ -15,7 +18,10 @@ import {IERC20} from 'openzeppelin-contracts/contracts/token/ERC20/IERC20.sol';
 import {ECDSA} from  'openzeppelin-contracts/contracts/utils/cryptography/ECDSA.sol';
 import {IPool} from  'aave-v3-core/contracts/interfaces/IPool.sol';
 import {IScaledBalanceToken} from 'aave-v3-core/contracts/interfaces/IScaledBalanceToken.sol';
-import {WadRayMath} from '../../lib/aave-address-book/lib/aave-v3-core/contracts/protocol/libraries/math/WadRayMath.sol';
+import {WadRayMath} from 'aave-v3-core/contracts/protocol/libraries/math/WadRayMath.sol';
+//import {WadRayMath} from '../../lib/aave-address-book/lib/aave-v3-core/contracts/protocol/libraries/math/WadRayMath.sol';
+//import {WadRayMath} from '../../lib/aave-v3-factory/src/core/contracts/protocol/libraries/math/WadRayMath.sol';
+
 
 import {DelegationMode} from 'aave-token-v3/DelegationAwareBalance.sol';
 import {BaseDelegation} from 'aave-token-v3/BaseDelegation.sol';
@@ -26,13 +32,6 @@ contract ATokenWithDelegation_Harness is ATokenWithDelegation {
 
     constructor(IPool pool) ATokenWithDelegation(pool) {}
 
-    // returns user's token balance, used in some community rules
-    //function getBalance(address user) public view returns (uint104) {
-        //        return _balances[user].balance;
-        //return _getBalance(user);
-    //  return balanceOf(user);
-    // }
-    
     // returns user's delegated proposition balance
     function getDelegatedPropositionBalance(address user) public view returns (uint72) {
         return _delegatedState[user].delegatedPropositionBalance;
@@ -44,14 +43,14 @@ contract ATokenWithDelegation_Harness is ATokenWithDelegation {
     }
 
     //returns user's delegating proposition status
-    function getDelegatingProposition(address user) public view returns (bool) {
+    function isDelegatingProposition(address user) public view returns (bool) {
         return
             _userState[user].delegationMode == DelegationMode.PROPOSITION_DELEGATED ||
             _userState[user].delegationMode == DelegationMode.FULL_POWER_DELEGATED;
     }
     
     // returns user's delegating voting status
-    function getDelegatingVoting(address user) public view returns (bool) {
+    function isDelegatingVoting(address user) public view returns (bool) {
         return
             _userState[user].delegationMode == DelegationMode.VOTING_DELEGATED ||
             _userState[user].delegationMode == DelegationMode.FULL_POWER_DELEGATED;
@@ -69,7 +68,6 @@ contract ATokenWithDelegation_Harness is ATokenWithDelegation {
     
     // returns user's delegation state
     function getDelegationMode(address user) public view returns (DelegationMode) {
-        //return _balances[user].delegationMode;
         return _userState[user].delegationMode;
     }
 

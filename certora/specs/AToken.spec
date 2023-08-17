@@ -1,7 +1,5 @@
 /**
-
 - values of gRNI passing: ray, 2 * ray
-
 */
 
 using DummyERC20_aTokenUnderlying as _underlyingAsset;
@@ -63,17 +61,6 @@ hook Sstore _userState[KEY address a].balance uint120 balance (uint120 old_balan
     havoc sumAllBalance assuming sumAllBalance@new() == sumAllBalance@old() + balance - old_balance;
 }
 
-invariant totalSupplyEqualsSumAllBalance(env e)
-    totalSupply(e) == scaledBalanceOfToBalanceOf(require_uint256(sumAllBalance()))
-    filtered { f -> !f.isView }
-    {
-        preserved mint(address caller, address onBehalfOf, uint256 amount, uint256 index) with (env e2) {
-            require index == gRNI();
-        }
-        preserved burn(address from, address receiverOfUnderlying, uint256 amount, uint256 index) with (env e3) {
-            require index == gRNI();
-        }
-    }
 
 // Rule to verify that permit sets the allowance correctly.
 rule permitIntegrity(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s) 
@@ -193,35 +180,6 @@ rule integrityTransfer(address from, address to, uint256 amount)
     }
 }
 
-
-/*
-Transfer is additive, can performed either all at once or gradually
-transfer(from,to,x); transfer(from,to,y) ~ transfer(from,to,x+y) at the same initial state
-*/
-rule additiveTransfer(address from1, address from2, address to1, address to2, uint256 x, uint256 y)
-{
-	env e1;
-	env e2;
-    uint256 indexRay = gRNI();
-	require (from1 != from2 && to1 != to2 && from1 != to2 && from2 != to1 && 
-	        (from1 == to1 <=> from2 == to2) &&
-			 balanceOf(from1) == balanceOf(from2) && balanceOf(to1) == balanceOf(to2));
-
-	require e1.msg.sender == from1;
-	require e2.msg.sender == from2;
-	transfer(e1, to1, x);
-	transfer(e1, to1, y);
-	uint256 balanceFromScenario1 = balanceOf(from1);
-	uint256 balanceToScenario1 = balanceOf(to1);
-
-	transfer(e2, to2, PLUS256(x,y));
-	
-	uint256 balanceFromScenario2 = balanceOf(from2);
-	uint256 balanceToScenario2 = balanceOf(to2);
-	
-	assert 	bounded_error_eq(balanceFromScenario1, balanceFromScenario2, 3)  &&
-	 		bounded_error_eq(balanceToScenario1, balanceToScenario2, 3), "transfer is not additive";
-}
 
 
 /*

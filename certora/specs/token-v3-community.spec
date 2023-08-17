@@ -1,19 +1,5 @@
-/*
-    This is a specification file for the verification of AaveTokenV3.sol 
-    smart contract using the Certora prover. The rules in this spec have been
-    contributed by the community. Individual attribution is given in the comments
-    to each rule.
-
-    For more information, visit: https://www.certora.com/
-
-    This file is run with scripts/verifyCommunity.sh
-    On AaveTokenV3Harness.sol
-
-    Run results: https://prover.certora.com/output/67509/d36b2357623beec546c1?anonymousKey=f6fb866df18e6bc9ed880806375e7861cde8274f
-
-*/
-
 import "base_token_v3.spec";
+
 using SymbolicLendingPoolL1 as _SymbolicLendingPoolL1;
 using DummyERC20_aTokenUnderlying as Underlying;
 definition RAY() returns uint256 = 10^27;
@@ -50,18 +36,6 @@ methods {
 
     // called from: IncentivizedERC20.sol::207. A method of incentivesControllerLocal.
     function _.handleAction(address,uint256,uint256) external => NONDET;
-
-    // getPool() returns address => ALWAYS(100);
-    //    function _.getPool() external returns address => NONDET;
-    //function _.getPool() external => NONDET;
-    
-    // A method of Ipool
-    // can this contract change the pool
-    //function _.getReserveData(address) external => CONSTANT;
-    //function _.claimAllRewards(address[],address) external => NONDET;
-
-    // called in MetaTxHelpers.sol::27.
-    //function _.isValidSignature(bytes32, bytes) external => NONDET;
 }
 
 definition ZERO_ADDRESS() returns address = 0;
@@ -115,28 +89,6 @@ rule permitIntegrity() {
     assert nonceAfter == nonceBefore + 1, "successful call to permit function increases nonce of owner by 1";
 }
 
-
-/*
-    @Rule
-
-    @Description:
-        Address 0 has no voting or proposition power
-
-    @Formula:
-    {
-        getPowerCurrent(0, VOTING_POWER) == 0 && getPowerCurrent(0, PROPOSITION_POWER) == && balanceOf(0) == 0
-    }
-
-    @Note:
-        Written by https://github.com/JayP11
-
-    @Link:
-*/
-//nissan: I remover the following invariant
-/*
-invariant addressZeroNoPower()
-  getPowerCurrent(0, VOTING_POWER()) == 0 && getPowerCurrent(0, PROPOSITION_POWER()) == 0 && balanceOf(0) == 0;
-*/
 
 /*
     @Rule
@@ -256,7 +208,7 @@ rule delegateIndependence(method f) {
     {
         votingPowerBefore = getPowerCurrent(a, VOTING_POWER)
         balanceBefore = balanceOf(a)
-        isVotingDelegatorBefore = getDelegatingVoting(a)
+        isVotingDelegatorBefore = isDelegatingVoting(a)
         isVotingDelegateeBefore = getDelegatedVotingBalance(a) != 0
     }
     <
@@ -265,7 +217,7 @@ rule delegateIndependence(method f) {
     {
         votingPowerAfter = getPowerCurrent(a, VOTING_POWER()
         balanceAfter = getBalance(a)
-        isVotingDelegatorAfter = getDelegatingVoting(a);
+        isVotingDelegatorAfter = isDelegatingVoting(a);
         isVotingDelegateeAfter = getDelegatedVotingBalance(a) != 0
 
         votingPowerBefore < votingPowerAfter <=> 
@@ -283,14 +235,14 @@ rule delegateIndependence(method f) {
     @Link:
 */
 rule votingPowerChangesWhileNotBeingADelegatee(address a) {
-    //nissan: Since this is a delegation rule, I added the requirement that index==1.
+    //For delegation rules we require that index==1.
     require (_SymbolicLendingPoolL1.getReserveNormalizedIncome(Underlying) == RAY());
 
     require a != 0;
 
     uint256 votingPowerBefore = getPowerCurrent(a, VOTING_POWER());
     uint256 balanceBefore = balanceOf(a); //getBalance(a);
-    bool isVotingDelegatorBefore = getDelegatingVoting(a);
+    bool isVotingDelegatorBefore = isDelegatingVoting(a);
     bool isVotingDelegateeBefore = getDelegatedVotingBalance(a) != 0;
 
     method f;
@@ -298,12 +250,12 @@ rule votingPowerChangesWhileNotBeingADelegatee(address a) {
     calldataarg args;
     f(e, args);
 
-    //nissan: Since this is a delegation rule, I added the requirement that index==1.
+    // For delegation rules we require that index==1.
     require (_SymbolicLendingPoolL1.getReserveNormalizedIncome(Underlying) == RAY());
 
     uint256 votingPowerAfter = getPowerCurrent(a, VOTING_POWER());
     uint256 balanceAfter = balanceOf(a); //getBalance(a);
-    bool isVotingDelegatorAfter = getDelegatingVoting(a);
+    bool isVotingDelegatorAfter = isDelegatingVoting(a);
     bool isVotingDelegateeAfter = getDelegatedVotingBalance(a) != 0;
 
     require !isVotingDelegateeBefore && !isVotingDelegateeAfter;
@@ -337,7 +289,7 @@ rule votingPowerChangesWhileNotBeingADelegatee(address a) {
     {
         propositionPowerBefore = getPowerCurrent(a, PROPOSITION_POWER)
         balanceBefore = balanceOf(a)
-        isPropositionDelegatorBefore = getDelegatingProposition(a)
+        isPropositionDelegatorBefore = isDelegatingProposition(a)
         isPropositionDelegateeBefore = getDelegatedPropositionBalance(a) != 0
     }
     <
@@ -346,7 +298,7 @@ rule votingPowerChangesWhileNotBeingADelegatee(address a) {
     {
         propositionPowerAfter = getPowerCurrent(a, PROPOSITION_POWER()
         balanceAfter = getBalance(a)
-        isPropositionDelegatorAfter = getDelegatingProposition(a);
+        isPropositionDelegatorAfter = isDelegatingProposition(a);
         isPropositionDelegateeAfter = getDelegatedPropositionBalance(a) != 0
 
         propositionPowerBefore < propositionPowerAfter <=> 
@@ -364,14 +316,14 @@ rule votingPowerChangesWhileNotBeingADelegatee(address a) {
     @Link:
 */
 rule propositionPowerChangesWhileNotBeingADelegatee(address a) {
-    //nissan: Since this is a delegation rule, I added the requirement that index==1.
+    // For delegation rules we require that index==1.
     require (_SymbolicLendingPoolL1.getReserveNormalizedIncome(Underlying) == RAY());
 
     require a != 0;
 
     uint256 propositionPowerBefore = getPowerCurrent(a, PROPOSITION_POWER());
     uint256 balanceBefore = balanceOf(a); //getBalance(a);
-    bool isPropositionDelegatorBefore = getDelegatingProposition(a);
+    bool isPropositionDelegatorBefore = isDelegatingProposition(a);
     bool isPropositionDelegateeBefore = getDelegatedPropositionBalance(a) != 0;
 
     method f;
@@ -379,12 +331,12 @@ rule propositionPowerChangesWhileNotBeingADelegatee(address a) {
     calldataarg args;
     f(e, args);
 
-    //nissan: Since this is a delegation rule, I added the requirement that index==1.
+    // For delegation rules we require that index==1.
     require (_SymbolicLendingPoolL1.getReserveNormalizedIncome(Underlying) == RAY());
 
     uint256 propositionPowerAfter = getPowerCurrent(a, PROPOSITION_POWER());
     uint256 balanceAfter = balanceOf(a); //getBalance(a);
-    bool isPropositionDelegatorAfter = getDelegatingProposition(a);
+    bool isPropositionDelegatorAfter = isDelegatingProposition(a);
     bool isPropositionDelegateeAfter = getDelegatedPropositionBalance(a) != 0;
 
     require !isPropositionDelegateeBefore && !isPropositionDelegateeAfter;
