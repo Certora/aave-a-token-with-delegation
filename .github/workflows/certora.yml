@@ -59,4 +59,5 @@ jobs:
           - token-v3-general.conf
           - token-v3-erc20.conf
           - token-v3-delegate.conf
+          - token-v3-delegate-HL-rules.conf
           - token-v3-community.conf
