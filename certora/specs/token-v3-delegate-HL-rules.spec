@@ -190,7 +190,7 @@ invariant inv_voting_power_correct(address user)
      ( (mirror_delegationMode[user]==FULL_POWER_DELEGATED() ||
         mirror_delegationMode[user]==VOTING_DELEGATED())     ? 0 : mirror_balance[user])
     )
-    filtered {f -> !is_mint_burn_func(f)}
+//    filtered {f -> !is_mint_burn_func(f)}
 {
     preserved with (env e) {
         requireInvariant user_cant_voting_delegate_to_himself();
@@ -206,7 +206,7 @@ invariant inv_proposition_power_correct(address user)
      ( (mirror_delegationMode[user]==FULL_POWER_DELEGATED() ||
         mirror_delegationMode[user]==PROPOSITION_DELEGATED())     ? 0 : mirror_balance[user])
     )
-    filtered {f -> !is_mint_burn_func(f)}
+//    filtered {f -> !is_mint_burn_func(f)}
 {
     preserved with (env e) {
         requireInvariant user_cant_proposition_delegate_to_himself();
@@ -286,7 +286,7 @@ invariant user_cant_proposition_delegate_to_himself()
     @Link:
 */
 rule vp_change_in_balance_affect_power_DELEGATEE(method f,address bob,address alice1,address alice2)
-    filtered {f -> !is_mint_burn_func(f)}
+//    filtered {f -> !is_mint_burn_func(f)}
 {
     env e;
     calldataarg args;
@@ -451,7 +451,7 @@ rule vp_change_of_balance_affect_power_NON_DELEGATEE(method f, address bob) {
     @Link:
 */
 rule pp_change_in_balance_affect_power_DELEGATEE(method f,address bob,address alice1,address alice2)
-    filtered {f -> !is_mint_burn_func(f)}
+//    filtered {f -> !is_mint_burn_func(f)}
 
 {
     env e;
