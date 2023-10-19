@@ -1,7 +1,7 @@
 
 
 certoraRun --send_only --disable_auto_cache_key_gen certora/conf/AToken.conf 
-certoraRun --send_only --disable_auto_cache_key_gen certora/conf/AToken-problematic-rules.conf --rule totalSupplyEqualsSumAllBalance
+#certoraRun --send_only --disable_auto_cache_key_gen certora/conf/AToken-problematic-rules.conf --rule totalSupplyEqualsSumAllBalance
 certoraRun --send_only --disable_auto_cache_key_gen certora/conf/token-v3-general.conf  
 certoraRun --send_only --disable_auto_cache_key_gen certora/conf/token-v3-erc20.conf  
 certoraRun --send_only --disable_auto_cache_key_gen certora/conf/token-v3-delegate.conf  

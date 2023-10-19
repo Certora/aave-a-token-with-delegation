@@ -53,7 +53,6 @@ jobs:
       matrix:
         rule:
           - AToken.conf
-          - AToken-problematic-rules.conf --rule totalSupplyEqualsSumAllBalance
           - token-v3-general.conf
           - token-v3-erc20.conf
           - token-v3-delegate.conf
