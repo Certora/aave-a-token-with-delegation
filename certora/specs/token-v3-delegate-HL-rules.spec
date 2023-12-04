@@ -190,14 +190,14 @@ invariant inv_voting_power_correct(address user)
      ( (mirror_delegationMode[user]==FULL_POWER_DELEGATED() ||
         mirror_delegationMode[user]==VOTING_DELEGATED())     ? 0 : mirror_balance[user])
     )
-//    filtered {f -> !is_mint_burn_func(f)}
+    filtered { f -> !f.isView && f.contract == currentContract}
 {
     preserved with (env e) {
         requireInvariant user_cant_voting_delegate_to_himself();
     }
 }
 
-invariant inv_proposition_power_correct(address user) 
+invariant inv_proposition_power_correct(address user)
     user != 0 =>
     (
      to_mathint(getPowerCurrent(user, PROPOSITION_POWER()))
@@ -206,7 +206,7 @@ invariant inv_proposition_power_correct(address user)
      ( (mirror_delegationMode[user]==FULL_POWER_DELEGATED() ||
         mirror_delegationMode[user]==PROPOSITION_DELEGATED())     ? 0 : mirror_balance[user])
     )
-//    filtered {f -> !is_mint_burn_func(f)}
+    filtered { f -> !f.isView && f.contract == currentContract}
 {
     preserved with (env e) {
         requireInvariant user_cant_proposition_delegate_to_himself();
