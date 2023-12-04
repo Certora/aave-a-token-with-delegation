@@ -3,8 +3,10 @@ name: certora
 on:
   push:
     branches:
-      - main
+      - certora
   pull_request:
+    branches:
+      - main
 
   workflow_dispatch:
 
@@ -31,7 +33,7 @@ jobs:
         uses: actions/setup-java@v1
         with: { java-version: "11", java-package: jre }
 
-      - name: Install certora cli 
+      - name: Install certora cli
         run: pip3 install certora-cli
 
       - name: Install solc
