@@ -1,15 +1,12 @@
 
 
-/*===============================================================================================
+/*=============================================================================================
   The rules of this file were part of the file AToken.spec.
-  The reason for the separation is that the rules of this file are timed-out if not run separately.
+  The reason for the separation is that the rules of this file are timed-out if not 
+  run separately.
   Hence, in the CI we run all the rules of AToken.spec simultaneously, and each rule of
   this file alone.
-  ===============================================================================================*/
-
-
-
-
+  =============================================================================================*/
 
 
 
@@ -65,7 +62,7 @@ definition bounded_error_eq(uint x, uint y, uint scale) returns bool =
     &&
     to_mathint(x) + (bound() * scale) >= to_mathint(y);
 
-ghost sumAllBalance() returns mathint {
+persistent ghost sumAllBalance() returns mathint {
     init_state axiom sumAllBalance() == 0;
 }
 

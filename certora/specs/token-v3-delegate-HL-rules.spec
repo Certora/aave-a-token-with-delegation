@@ -45,17 +45,17 @@ ghost rayDiv_MI(mathint , mathint) returns uint256 {
 
 
 
-ghost mapping(address => mathint) sum_all_voting_delegated_power {
+persistent ghost mapping(address => mathint) sum_all_voting_delegated_power {
     init_state axiom forall address delegatee. sum_all_voting_delegated_power[delegatee] == 0;
 }
-ghost mapping(address => mathint) sum_all_proposition_delegated_power {
+persistent ghost mapping(address => mathint) sum_all_proposition_delegated_power {
     init_state axiom forall address delegatee. sum_all_proposition_delegated_power[delegatee] == 0;
 }
 
 // =========================================================================
 //   mirror_votingDelegatee
 // =========================================================================
-ghost mapping(address => address) mirror_votingDelegatee { 
+persistent ghost mapping(address => address) mirror_votingDelegatee { 
     init_state axiom forall address a. mirror_votingDelegatee[a] == 0;
 }
 hook Sstore _votingDelegatee[KEY address delegator] address new_delegatee (address old_delegatee) STORAGE {
@@ -79,7 +79,7 @@ invariant mirror_votingDelegatee_correct(address a)
 // =========================================================================
 //   mirror_propositionDelegatee
 // =========================================================================
-ghost mapping(address => address) mirror_propositionDelegatee { 
+persistent ghost mapping(address => address) mirror_propositionDelegatee { 
     init_state axiom forall address a. mirror_propositionDelegatee[a] == 0;
 }
 hook Sstore _propositionDelegatee[KEY address delegator] address new_delegatee (address old_delegatee) STORAGE {
@@ -103,7 +103,7 @@ invariant mirror_propositionDelegatee_correct(address a)
 // =========================================================================
 //   mirror_delegationMode
 // =========================================================================
-ghost mapping(address => ATokenWithDelegation_Harness.DelegationMode) mirror_delegationMode { 
+persistent ghost mapping(address => ATokenWithDelegation_Harness.DelegationMode) mirror_delegationMode { 
     init_state axiom forall address a. mirror_delegationMode[a] ==
         ATokenWithDelegation_Harness.DelegationMode.NO_DELEGATION;
 }
@@ -139,7 +139,7 @@ invariant mirror_delegationMode_correct(address a)
 // =========================================================================
 //   mirror_balance
 // =========================================================================
-ghost mapping(address => uint120) mirror_balance { 
+persistent ghost mapping(address => uint120) mirror_balance { 
     init_state axiom forall address a. mirror_balance[a] == 0;
 }
 hook Sstore _userState[KEY address a].balance uint120 balance (uint120 old_balance) STORAGE {
