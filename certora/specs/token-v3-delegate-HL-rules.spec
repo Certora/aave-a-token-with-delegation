@@ -59,7 +59,7 @@ persistent ghost mapping(address => address) mirror_votingDelegatee {
     init_state axiom forall address a. mirror_votingDelegatee[a] == 0;
 }
 hook Sstore _votingDelegatee[KEY address delegator] address new_delegatee (address old_delegatee) STORAGE {
-    //    mirror_votingDelegatee[delegator] = old_delegatee;
+    mirror_votingDelegatee[delegator] = new_delegatee;
     if ((mirror_delegationMode[delegator]==FULL_POWER_DELEGATED() ||
          mirror_delegationMode[delegator]==VOTING_DELEGATED()) &&
         new_delegatee != old_delegatee) { // if a delegator changes his delegatee
@@ -75,16 +75,6 @@ hook Sload address val _votingDelegatee[KEY address delegator] STORAGE {
 invariant mirror_votingDelegatee_correct(address a)
     mirror_votingDelegatee[a] == getVotingDelegatee(a);
 
-rule as_rule() {
-    address a;
-    require mirror_votingDelegatee[a] == getVotingDelegatee(a);
-    address delegatee;
-    //    method f; calldataarg args;
-    env e;
-    delegate(e, delegatee);
-    assert false; 
-    assert mirror_votingDelegatee[a] == getVotingDelegatee(a);
-}
 
 // =========================================================================
 //   mirror_propositionDelegatee

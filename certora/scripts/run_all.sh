@@ -1,5 +1,5 @@
 
-CMN="--disable_auto_cache_key_gen --rule_sanity basic "
+CMN="--disable_auto_cache_key_gen"
 
 
 echo "******** Running: AToken.conf   ****************"
