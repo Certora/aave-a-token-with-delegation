@@ -72,9 +72,15 @@ hook Sstore _votingDelegatee[KEY address delegator] address new_delegatee (addre
 hook Sload address val _votingDelegatee[KEY address delegator] STORAGE {
     require(mirror_votingDelegatee[delegator] == val);
 }
-invariant mirror_votingDelegatee_correct(address a)
-    mirror_votingDelegatee[a] == getVotingDelegatee(a);
+//invariant mirror_votingDelegatee_correct(address a)
+//    mirror_votingDelegatee[a] == getVotingDelegatee(a);
 
+rule mirror_votingDelegatee_correct() {
+    address a;
+    method f; calldataarg args; env e;
+    f(e,args);
+    assert mirror_votingDelegatee[a] == getVotingDelegatee(a);
+}
 
 // =========================================================================
 //   mirror_propositionDelegatee
@@ -96,9 +102,14 @@ hook Sstore _propositionDelegatee[KEY address delegator] address new_delegatee (
 hook Sload address val _propositionDelegatee[KEY address delegator] STORAGE {
     require(mirror_propositionDelegatee[delegator] == val);
 }
-invariant mirror_propositionDelegatee_correct(address a)
-    mirror_propositionDelegatee[a] == getPropositionDelegatee(a);
-
+//invariant mirror_propositionDelegatee_correct(address a)
+//    mirror_propositionDelegatee[a] == getPropositionDelegatee(a);
+rule mirror_propositionDelegatee_correct() {
+    address a;
+    method f; calldataarg args; env e;
+    f(e,args);
+    assert mirror_propositionDelegatee[a] == getPropositionDelegatee(a);
+}
 
 // =========================================================================
 //   mirror_delegationMode
@@ -131,8 +142,14 @@ hook Sstore _userState[KEY address a].delegationMode ATokenWithDelegation_Harnes
 hook Sload ATokenWithDelegation_Harness.DelegationMode val _userState[KEY address a].delegationMode STORAGE {
     require(mirror_delegationMode[a] == val);
 }
-invariant mirror_delegationMode_correct(address a)
-    mirror_delegationMode[a] == getDelegationMode(a);
+//invariant mirror_delegationMode_correct(address a)
+//  mirror_delegationMode[a] == getDelegationMode(a);
+rule mirror_delegationMode_correct() {
+    address a;
+    method f; calldataarg args; env e;
+    f(e,args);
+    assert mirror_delegationMode[a] == getDelegationMode(a);
+}
 
 
 
@@ -166,8 +183,14 @@ hook Sstore _userState[KEY address a].balance uint120 balance (uint120 old_balan
 hook Sload uint120 bal _userState[KEY address a].balance STORAGE {
     require(mirror_balance[a] == bal);
 }
-invariant mirror_balance_correct(address a)
-    mirror_balance[a] == getBalance(a);
+//invariant mirror_balance_correct(address a)
+//    mirror_balance[a] == getBalance(a);
+rule mirror_balance_correct() {
+    address a;
+    method f; calldataarg args; env e;
+    f(e,args);
+    assert  mirror_balance[a] == getBalance(a);
+}
 
 
 
